@@ -1,0 +1,5 @@
+xkcd
+Flask
+spidev
+Pillow
+RPi.GPIO
