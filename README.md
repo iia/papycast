@@ -23,7 +23,7 @@ Current features of this project are:
 
 ## Usage
 
-1. Clone this repository.
+1. Clone this repository and go to the `backend` directory.
 
 2. Make sure Python3, pip and Python3 virtual environment are installed:
 
@@ -57,4 +57,4 @@ $ . venv/bin/activate
 
 This script will start a [Flask](https://flask.palletsprojects.com/en/1.1.x/) application on port 5000 of the Raspberry Pi. There should already be a comic being displayed on the screen.
 
-7. To request a comic update just use this URL: `http://<PI_IP>:5000/update_comic` from a web browser.
+7. To request a comic update just use this URL: `http://<IP_OF_THE_PI>:5000/update_comic` from a web browser.
