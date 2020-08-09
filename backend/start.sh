@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export FLASK_APP="backend:app"
-export FLASK_ENV=development
+export FLASK_ENV=production
 
 #
 # NOTE:
