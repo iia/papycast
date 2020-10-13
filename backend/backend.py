@@ -49,86 +49,89 @@ def thread_task_handler(queue_task_handler):
 
         _, task = queue_task_handler.get()
 
-        if task[id] == TASK_ID_TERMINATE:
-            logging.info(
-                "main_thread: Terminating, current queue size = %d" %
-                queue_task_handler.qsize()
-            )
-
-            timer_update_comic_periodic.cancel()
-
-            break
-
-        attempt = 1
-        found_comic = False
-
-        while(not found_comic):
-            logging.info(
-                "main_thread: Getting new comic, attempt number %d" %
-                attempt
-            )
-
-            comic = xkcd.getRandomComic()
-
-            comic.download(
-                silent = False,
-                output = DIR_TMP,
-                outputFile = 'xkcd_raw.png'
-            )
-
-            image_xkcd_raw = \
-                Image.open(os.path.join(DIR_TMP, 'xkcd_raw.png'))
-
-            image_xkcd_raw_w, image_xkcd_raw_h = \
-                image_xkcd_raw.size
-
-            attempt += 1
-
-            if (image_xkcd_raw_w <= waveshare_7in5_v2.WIDTH) \
-               and \
-               (image_xkcd_raw_h <= waveshare_7in5_v2.HEIGHT):
-                    found_comic = True
-
-        logging.info(
-            "main_thread: Got new comic, image dimension = %s" %
-            str(image_xkcd_raw.size)
-        )
-
-        image_xkcd_raw = Image.open(os.path.join(DIR_TMP, 'xkcd_raw.png'))
-
-        image_xkcd_raw_resized = \
-            image_xkcd_raw.resize(
-                (waveshare_7in5_v2.WIDTH, waveshare_7in5_v2.HEIGHT)
-            )
-
-        image_xkcd_raw_resized.save(
-            os.path.join(DIR_TMP, 'xkcd.bmp'),
-            'BMP'
-        )
-
-        image_xkcd = Image.open(os.path.join(DIR_TMP, 'xkcd.bmp'))
-
-        display = waveshare_7in5_v2.Waveshare7in5V2()
-
-        display.init()
-
-        display.do_clear()
-
-        display.display(display.get_image_buffer(image_xkcd))
-
-        time.sleep(2)
-
-        display.do_sleep()
-
-        if task[id] == TASK_ID_UPDATE_COMIC_PERIODIC:
-            timer_update_comic_periodic = \
-                threading.Timer(
-                    INTERVAL_UPDATE_COMIC_PERIODIC,
-                    update_comic_periodic,
-                    args = [queue_task_handler]
+        try:
+            if task[id] == TASK_ID_TERMINATE:
+                logging.info(
+                    "main_thread: Terminating, current queue size = %d" %
+                    queue_task_handler.qsize()
                 )
 
-            timer_update_comic_periodic.start()
+                timer_update_comic_periodic.cancel()
+
+                break
+
+            attempt = 1
+            found_comic = False
+
+            while(not found_comic):
+                logging.info(
+                    "main_thread: Getting new comic, attempt number %d" %
+                    attempt
+                )
+
+                comic = xkcd.getRandomComic()
+
+                comic.download(
+                    silent = False,
+                    output = DIR_TMP,
+                    outputFile = 'xkcd_raw.png'
+                )
+
+                image_xkcd_raw = \
+                    Image.open(os.path.join(DIR_TMP, 'xkcd_raw.png'))
+
+                image_xkcd_raw_w, image_xkcd_raw_h = \
+                    image_xkcd_raw.size
+
+                attempt += 1
+
+                if (image_xkcd_raw_w <= waveshare_7in5_v2.WIDTH) \
+                and \
+                (image_xkcd_raw_h <= waveshare_7in5_v2.HEIGHT):
+                        found_comic = True
+
+            logging.info(
+                "main_thread: Got new comic, image dimension = %s" %
+                str(image_xkcd_raw.size)
+            )
+
+            image_xkcd_raw = Image.open(os.path.join(DIR_TMP, 'xkcd_raw.png'))
+
+            image_xkcd_raw_resized = \
+                image_xkcd_raw.resize(
+                    (waveshare_7in5_v2.WIDTH, waveshare_7in5_v2.HEIGHT)
+                )
+
+            image_xkcd_raw_resized.save(
+                os.path.join(DIR_TMP, 'xkcd.bmp'),
+                'BMP'
+            )
+
+            image_xkcd = Image.open(os.path.join(DIR_TMP, 'xkcd.bmp'))
+
+            display = waveshare_7in5_v2.Waveshare7in5V2()
+
+            display.init()
+
+            display.do_clear()
+
+            display.display(display.get_image_buffer(image_xkcd))
+
+            time.sleep(2)
+
+            display.do_sleep()
+        except Exception as e:
+            logging.error(repr(e))
+        finally:
+            if task[id] == TASK_ID_UPDATE_COMIC_PERIODIC:
+                timer_update_comic_periodic = \
+                    threading.Timer(
+                        INTERVAL_UPDATE_COMIC_PERIODIC,
+                        update_comic_periodic,
+                        args = [queue_task_handler]
+                    )
+
+                timer_update_comic_periodic.start()
 
 queue_task_handler = queue.PriorityQueue(maxsize = 0)
 
