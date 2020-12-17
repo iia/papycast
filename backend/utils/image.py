@@ -1,5 +1,17 @@
-def scale_and_center():
-    #img.thumbnail(maxsize, PIL.Image.ANTIALIAS) # Scale.
-    #img_bg.paste(img, (int(epd.width/2)-int(w/2), int(epd.height/2)-int(h/2))) # Centering the scaled image on background image.
+def do_center(image, background, display):
+    if (image.height > display.HEIGHT) or (image.width > display.WIDTH):
+        return None
 
-    return True
+    if (background.height != display.HEIGHT) or (background.width != display.WIDTH):
+        return None
+
+    # Centering the image on the background image.
+    background.paste(
+        image,
+        (
+            int(background.width / 2) - int(image.width / 2),
+            int(background.height / 2) - int(image.height / 2)
+        )
+    )
+
+    return background

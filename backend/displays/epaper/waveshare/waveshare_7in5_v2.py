@@ -30,7 +30,7 @@ class Waveshare7in5V2:
         self.waveshare_config.delay_ms(200)
 
     def send_command(self, command):
-        logging.debug('Sending command = 0x%.2X', command)
+        #logging.debug('Sending command = 0x%.2X', command)
 
         self.waveshare_config.digital_write(self.pin_dc, 0)
         self.waveshare_config.digital_write(self.pin_cs, 0)

@@ -1,5 +1,7 @@
 xkcd
 Flask
+pypng
 spidev
 Pillow
+pyqrcode
 RPi.GPIO
