@@ -91,33 +91,33 @@ def thread_task_handler():
                 )
 
                 qr_wifi.png(
-                    os.path.join(DIR_TMP, 'qr_wifi_raw.png'),
+                    os.path.join(DIR_TMP, 'current_image_raw.png'),
                     scale = 8,
                     module_color = [0, 0, 0, 255],
                     background = [0xff, 0xff, 0xff]
                 )
 
-                qr_wifi_raw = Image.open(os.path.join(DIR_TMP, 'qr_wifi_raw.png'))
+                current_image_raw = Image.open(os.path.join(DIR_TMP, 'current_image_raw.png'))
 
-                qr_wifi_raw_resized = qr_wifi_raw.resize((400, 400))
+                current_image_raw = current_image_raw.resize((400, 400))
 
-                qr_wifi_raw_resized_centered = image.do_center(
-                    qr_wifi_raw_resized,
+                current_image_raw = image.do_center(
+                    current_image_raw,
                     Image.open(os.path.join(DIR_RES, 'img/bg_screen_800_480.png')),
                     waveshare_7in5_v2
                 )
 
-                if qr_wifi_raw_resized_centered == None:
+                if current_image_raw == None:
                     logging.error("main_thread: Failed to center generated WiFi QR code")
                 else:
-                    qr_wifi_raw_resized_centered.save(
-                        os.path.join(DIR_TMP, 'qr_wifi.bmp'),
+                    current_image_raw.save(
+                        os.path.join(DIR_TMP, 'current_image.bmp'),
                         'BMP'
                     )
 
-                    image_qr_wifi = Image.open(os.path.join(DIR_TMP, 'qr_wifi.bmp'))
+                    current_image = Image.open(os.path.join(DIR_TMP, 'current_image.bmp'))
 
-                    do_display(waveshare_7in5_v2.Waveshare7in5V2(), image_qr_wifi)
+                    do_display(waveshare_7in5_v2.Waveshare7in5V2(), current_image)
 
                     time.sleep(TIMEOUT_SEC_DISPLAY_QR_WIFI)
 
@@ -143,42 +143,40 @@ def thread_task_handler():
                     comic.download(
                         silent = False,
                         output = DIR_TMP,
-                        outputFile = 'xkcd_raw.png'
+                        outputFile = 'current_image_raw.png'
                     )
 
-                    image_xkcd_raw = \
-                        Image.open(os.path.join(DIR_TMP, 'xkcd_raw.png'))
+                    current_image_raw = \
+                        Image.open(os.path.join(DIR_TMP, 'current_image_raw.png'))
 
-                    image_xkcd_raw_w, image_xkcd_raw_h = \
-                        image_xkcd_raw.size
+                    current_image_raw_w, current_image_raw_h = \
+                        current_image_raw.size
 
                     attempt += 1
 
-                    if (image_xkcd_raw_w <= waveshare_7in5_v2.WIDTH) \
-                    and \
-                    (image_xkcd_raw_h <= waveshare_7in5_v2.HEIGHT):
-                        found_comic = True
+                    if (current_image_raw_w <= waveshare_7in5_v2.WIDTH) \
+                        and \
+                        (current_image_raw_h <= waveshare_7in5_v2.HEIGHT):
+                            found_comic = True
 
                 logging.info(
                     "main_thread: Got new comic, image dimension = %s" %
-                    str(image_xkcd_raw.size)
+                    str(current_image_raw.size)
                 )
 
-                image_xkcd_raw = Image.open(os.path.join(DIR_TMP, 'xkcd_raw.png'))
-
-                image_xkcd_raw_resized = \
-                    image_xkcd_raw.resize(
+                current_image_raw = \
+                    current_image_raw.resize(
                         (waveshare_7in5_v2.WIDTH, waveshare_7in5_v2.HEIGHT)
                     )
 
-                image_xkcd_raw_resized.save(
-                    os.path.join(DIR_TMP, 'xkcd.bmp'),
+                current_image_raw.save(
+                    os.path.join(DIR_TMP, 'current_image.bmp'),
                     'BMP'
                 )
 
-                image_xkcd = Image.open(os.path.join(DIR_TMP, 'xkcd.bmp'))
+                current_image = Image.open(os.path.join(DIR_TMP, 'current_image.bmp'))
 
-                do_display(waveshare_7in5_v2.Waveshare7in5V2(), image_xkcd)
+                do_display(waveshare_7in5_v2.Waveshare7in5V2(), current_image)
         except Exception as e:
             logging.error(repr(e))
         finally:
