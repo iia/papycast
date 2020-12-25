@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+source /home/pi/git/iia/papycast/backend/venv/bin/activate
 
 export FLASK_APP="backend:app"
 export FLASK_ENV=production
