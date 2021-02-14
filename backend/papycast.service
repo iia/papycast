@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/git/iia/papycast/backend
-ExecStart=/home/pi/git/iia/papycast/backend/start.sh
+WorkingDirectory=/opt/git/iia/papycast/backend
+ExecStart=/opt/git/iia/papycast/backend/start.sh
 Restart=always
 
 [Install]
