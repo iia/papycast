@@ -2,7 +2,7 @@
     <img
         width="25%"
         style="text-align: center;"
-        src=".github/res/img/papycast.svg" />
+        src=".github/res/img/papycast.png" />
 </p>
 
 # Papycast
