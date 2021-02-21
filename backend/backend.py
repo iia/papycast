@@ -4,6 +4,7 @@ import xkcd
 import queue
 import signal
 import logging
+import pathlib
 import pyqrcode
 import threading
 from utils import image
@@ -270,6 +271,12 @@ def handler_sigint(signal_number, frame):
     exit(0)
 
 signal.signal(signal.SIGINT, handler_sigint)
+
+# Create the temporary directory if it's not there.
+pathlib.Path(DIR_TMP).mkdir(
+    parents = False,
+    exist_ok = True
+)
 
 thread_task_handler.start()
 
