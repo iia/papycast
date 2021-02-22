@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import xkcd
 import queue
@@ -28,9 +29,9 @@ TASK_ID_DISPLAY_QR_WIFI = 2
 TASK_ID_UPDATE_COMIC_PERIODIC = 3
 
 # WiFi credentials for generating QR code.
-TASK_DISPLAY_QR_WIFI_SSID = 'LisIsh@Guest'
-TASK_DISPLAY_QR_WIFI_PROTOCOL = 'WPA/WPA2'
-TASK_DISPLAY_QR_WIFI_PSK = 'you_are_welcome'
+TASK_DISPLAY_QR_WIFI_PSK = None
+TASK_DISPLAY_QR_WIFI_SSID = None
+TASK_DISPLAY_QR_WIFI_PROTOCOL = "WPA/WPA2"
 
 TIMEOUT_SEC_DISPLAY_QR_WIFI = 120.0
 INTERVAL_SEC_UPDATE_COMIC_PERIODIC = 21600.0
@@ -41,6 +42,33 @@ logging.basicConfig(
     format = "%(asctime)s papycast :: %(filename)s :: %(levelname)s: %(message)s"
 )
 
+# The signal handler.
+def handler_sigint(signal_number, frame):
+    logging.debug('Interrupt signal (CTRL+C) handler')
+
+    if thread_task_handler.is_alive():
+        logging.debug('Main thread is alive, attempting to end the main thread')
+
+        queue_task_handler.put(
+            (
+                TASK_PRIO_TERMINATE,
+                {
+                    id: TASK_ID_TERMINATE
+                }
+            )
+        )
+
+        logging.debug('Task queued, waiting for the main thread to join')
+
+        thread_task_handler.join()
+
+        logging.debug('Main thread joined')
+
+    logging.debug('Interrupt signal handled')
+
+    exit(0)
+
+# Main thread function.
 def thread_task_handler():
     timer_update_comic_periodic = None
 
@@ -190,20 +218,13 @@ def thread_task_handler():
 
             timer_update_comic_periodic.start()
 
+# Flask stuff.
+
 with app.app_context():
     current_app.app_lock = Lock()
 
     with current_app.app_lock:
         current_app.is_handling_task_display_qr_wifi = False
-
-queue_task_handler = queue.PriorityQueue(maxsize = 0)
-
-thread_task_handler = \
-    threading.Thread(
-        args = (),
-        name = 'Task Handler',
-        target = thread_task_handler
-    )
 
 # REST endpoints.
 
@@ -245,47 +266,51 @@ def ep_display_qr_wifi():
 
     return jsonify(id = TASK_ID_DISPLAY_QR_WIFI, status = 0)
 
-def handler_sigint(signal_number, frame):
-    logging.debug('Interrupt signal (CTRL+C) handler')
+# Application main.
 
-    if thread_task_handler.is_alive():
-        logging.debug('Main thread is alive, attempting to end the main thread')
+if __name__ == '__main__':
+    if ('PAPYCAST_ENV_QR_WIFI_SSID' not in os.environ) or \
+       ('PAPYCAST_ENV_QR_WIFI_SSID_PSK' not in os.environ):
+            sys.exit("\nThe following environment variables must be set:\n\n\
+1. PAPYCAST_ENV_QR_WIFI_SSID\n2. PAPYCAST_ENV_QR_WIFI_SSID_PSK\n")
 
-        queue_task_handler.put(
-            (
-                TASK_PRIO_TERMINATE,
-                {
-                    id: TASK_ID_TERMINATE
-                }
-            )
+    TASK_DISPLAY_QR_WIFI_SSID = \
+        os.environ['PAPYCAST_ENV_QR_WIFI_SSID']
+
+    TASK_DISPLAY_QR_WIFI_PSK = \
+        os.environ['PAPYCAST_ENV_QR_WIFI_SSID_PSK']
+
+    if TASK_DISPLAY_QR_WIFI_SSID == '' or TASK_DISPLAY_QR_WIFI_PSK == '':
+        sys.exit("\nThe following environment variables must be set:\n\n\
+1. PAPYCAST_ENV_QR_WIFI_SSID\n2. PAPYCAST_ENV_QR_WIFI_SSID_PSK\n")
+
+    # Register signal handler.
+    signal.signal(signal.SIGINT, handler_sigint)
+
+    # Create the temporary directory if it's not there.
+    pathlib.Path(DIR_TMP).mkdir(parents = False, exist_ok = True)
+
+    # Prepare and start the main thread.
+    queue_task_handler = queue.PriorityQueue(maxsize = 0)
+
+    thread_task_handler = \
+        threading.Thread(
+            args = (),
+            name = 'Task Handler',
+            target = thread_task_handler
         )
 
-        logging.debug('Task queued, waiting for the main thread to join')
+    thread_task_handler.start()
 
-        thread_task_handler.join()
-
-        logging.debug('Main thread joined')
-
-    logging.debug('Interrupt signal handled')
-
-    exit(0)
-
-signal.signal(signal.SIGINT, handler_sigint)
-
-# Create the temporary directory if it's not there.
-pathlib.Path(DIR_TMP).mkdir(
-    parents = False,
-    exist_ok = True
-)
-
-thread_task_handler.start()
-
-# Get started with periodic comic update.
-queue_task_handler.put(
-    (
-        TASK_PRIO_UPDATE_COMIC_PERIODIC,
-        {
-            id: TASK_ID_UPDATE_COMIC_PERIODIC
-        }
+    # Get started with periodic comic update.
+    queue_task_handler.put(
+        (
+            TASK_PRIO_UPDATE_COMIC_PERIODIC,
+            {
+                id: TASK_ID_UPDATE_COMIC_PERIODIC
+            }
+        )
     )
-)
+
+    # Start Flask application.
+    app.run(debug = False, host = '0.0.0.0')

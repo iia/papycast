@@ -1,7 +1,6 @@
 [Unit]
-After=docker.service
-#After=network.target
-Requires=docker.service
+Requires=docker.socket
+After=docker.service network.target
 Description=Papycast systemd service
 
 [Service]
@@ -10,17 +9,8 @@ Type=simple
 Restart=always
 WorkingDirectory=/opt/git/iia/papycast/backend
 
-ExecStartPre=/usr/bin/docker \
-pull iia86/papycast:arm32v7-latest
-
-#ExecStart=/opt/git/iia/papycast/backend/start.sh
-ExecStart=/usr/bin/docker \
-run \
---rm \
--p 5000:5000 \
---device /dev/gpiomem \
---device /dev/spidev0.0 \
--i iia86/papycast:arm32v7-latest
+ExecStart=/opt/git/iia/papycast/start.sh
+ExecStop=/opt/git/iia/papycast/stop.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=network-online.target
