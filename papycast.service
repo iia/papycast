@@ -7,7 +7,7 @@ Description=Papycast systemd service
 User=pi
 Type=simple
 Restart=always
-WorkingDirectory=/opt/git/iia/papycast/backend
+WorkingDirectory=/opt/git/iia/papycast/
 
 ExecStart=/opt/git/iia/papycast/start.sh
 ExecStop=/opt/git/iia/papycast/stop.sh
