@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. $0/papycast.conf
+SCRIPTPATH="$(cd "$(dirname "$0")" > /dev/null 2>&1; pwd -P)"
+
+. $SCRIPTPATH/papycast.conf
 
 /usr/bin/docker \
 run \
