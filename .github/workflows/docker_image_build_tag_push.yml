@@ -19,6 +19,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Setup Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        version: latest
+
     - name: Build Docker Image
       env:
         DH_USERNAME: ${{ secrets.GH_SECRET_DH_USER }}
