@@ -1,11 +1,11 @@
-FROM arm32v7/python:3.9.2-buster
+FROM python:3.9.2
 
 USER root
 WORKDIR /root
 
-RUN git clone https://github.com/iia/papycast.git
-RUN pip3 install -r ./papycast/backend/requirements.txt
+COPY ./backend/ ./backend/
+RUN pip3 install -r ./backend/requirements.txt
 
-WORKDIR /root/papycast/backend
+WORKDIR /root/backend
 
 CMD ["python3", "backend.py"]
