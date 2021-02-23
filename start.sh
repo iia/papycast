@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. ./papycast.conf
+. $0/papycast.conf
 
 /usr/bin/docker \
 run \
