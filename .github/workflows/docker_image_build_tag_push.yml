@@ -20,9 +20,12 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Build Docker Image
+      env:
+        DH_USERNAME: ${{ secrets.GH_SECRET_DH_USER }}
+        DH_PASSWORD: ${{ secrets.GH_SECRET_DH_PASSWORD }}
       run: |
         docker buildx build \
           --platform=linux/arm/v7 \
           --output "type=image,push=true" \
-          --tag iia86/papycast:arm32v7-latest \
+          --tag $DH_USERNAME/papycast:arm32v7-latest \
           .
