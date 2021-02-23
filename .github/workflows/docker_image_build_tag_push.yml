@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Dockerhub Login
+      env:
+        DH_USERNAME: ${{ secrets.GH_SECRET_DH_USER }}
+        DH_PASSWORD: ${{ secrets.GH_SECRET_DH_PASSWORD }}
+      run: |
+        echo "${DH_PASSWORD}" | docker login --username ${DH_USERNAME} --password-stdin
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build Docker Image
+      run: |
+        docker buildx build \
+          --platform=linux/arm/v7 \
+          --output "type=image,push=true" \
+          --tag $(echo ${DH_USERNAME}/papycast:arm32v7-latest \
+          .
