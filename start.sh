@@ -4,6 +4,8 @@ SCRIPTPATH="$(cd "$(dirname "$0")" > /dev/null 2>&1; pwd -P)"
 
 . $SCRIPTPATH/papycast.conf
 
+./stop.sh
+
 /usr/bin/docker \
 run \
 --rm \
