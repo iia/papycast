@@ -30,7 +30,6 @@ jobs:
     - name: Build Docker Image
       env:
         DH_USERNAME: ${{ secrets.GH_SECRET_DH_USER }}
-        DH_PASSWORD: ${{ secrets.GH_SECRET_DH_PASSWORD }}
       run: |
         docker buildx build \
           --platform=linux/arm/v7 \
